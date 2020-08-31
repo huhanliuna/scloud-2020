@@ -1,0 +1,6 @@
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/springcloud/config/ApplicationContextConfig.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/springcloud/OrderApplication.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/springcloud/lb/LoadBalance.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/myrule/MyRule.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/springcloud/controller/OrderController.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-order80/src/main/java/com/atln/springcloud/lb/MyLB.java

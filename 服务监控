@@ -1,0 +1,8 @@
+hystrix dashboard:服务调用/服务监控
+工程启动类上加 @EnableHystrixDashboard注解
+pom.xml中加 <dependency>
+                     <groupId>org.springframework.cloud</groupId>
+                     <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+                 </dependency>
+    启动9001工程
+http://localhost:9001/hystrix便可看到图形化界面

@@ -1,0 +1,43 @@
+config:
+    服务配置：解决多个为服务之间多个共同的配置文件问题，1.改一个配置文件，其余的配置文件也得跟着改，2.修改了配置文件 各个关联的服务都得需要重启才生效
+
+    将共同的配置文件上传到github
+    先有一个人config-server 连接上github上的
+    congig-client 连接上config-server,变可以获取共同配置文件的属性
+@RefreshScope
+
+   要想修改的配置不重启的情况下立即生效需要配置controller上配置注解 RefreshScope，发post请求 curl -X POST "http://localhost:3355/actuator/refresh"
+
+   缺陷：修改配置，需要给其他多个微服务发post请求
+
+   bus可弥补：bus-refresh
+   安装rabbitmq
+   添加mavencloud-bus-amq依赖
+   配置rabbit服务
+   必须配置virtualhost才连接上？待定？
+   发送 执行到server端 curl -X POST "http://localhost:3344/actuator/bus-refresh"
+   或者执行到某一个client端，有一个client发送到别的服务也是可以的
+   单独让指定的某个服务生效 /{destination} config-client:3355  微服务+端口号 curl -X POST "http://localhost:3344/actuator/bus-refresh/config-client:3366"
+
+
+###################################################################
+
+nacos 也可做服务配置：例如：cloudalibaba-config-nacos-client3377
+        springboot配置文件的加载顺序：bootstrap > application
+spring:
+  application:
+    name: nacos-config-client
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 39.100.249.228:8848 #Nacos服务注册中心地址
+      config:
+        server-addr: 39.100.249.228:8848 #Nacos作为配置中心地址
+        file-extension: yaml #指定yaml格式配置
+        group: TEST_GROUP
+        namespace: e08a7505-b3a2-43da-a917-69f9715503c3
+
+
+     #${prefix}-${spring.profile.active}.${file-extension}
+     # ${spring.application.name}-${spring.profile.active}.${file-extension}
+     # nacos-config-client-dev.yml

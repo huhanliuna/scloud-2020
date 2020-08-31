@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: cloud-consul-order
+
+  cloud:
+    consul:
+      host: 39.100.249.228
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 30s
+        hostname: 192.168.1.2
+management:
+  endpoint:
+    beans:
+      enabled: false

@@ -1,0 +1,55 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: cloud-payment-service
+    #配置sleuth
+  zipkin:
+    base-url: http://39.100.249.228:9411
+  sleuth:
+    sampler:
+      #采样取值介于 0到1之间，1则表示全部收集
+      probability: 1
+  datasource:
+    # 当前数据源操作类型
+    type: com.alibaba.druid.pool.DruidDataSource
+    # mysql驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/db2019?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password:
+
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.atln,springcloud.model
+
+devtools:
+  livereload:
+    enabled: true #是否支持livereload
+    port: 35729
+  restart:
+    enabled: true #是否支持热部署
+
+eureka:
+  client:
+     register-with-eureka: true
+    # false表示自己端就是注册中心,我的职责就是维护服务实例,并不需要检索服务
+     fetch-registry: true
+     service-url:
+         # 设置与Eureka Server交互的地址查询服务和注册服务都需要依赖这个地址
+              # 单机 defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+              # 相互注册
+              #defaultZone: http://eureka7002.com:7002/eureka/
+        defaultZone: http://eureka7002.com:7002/eureka/,http://eureka7001.com:7001/eureka/
+  instance:
+    instance-id: payment8001
+    prefer-ip-address: true
+     #Eureka客户端向服务端发送心跳的实际间隔，单位为秒（默认为30秒）
+    lease-renewal-interval-in-seconds: 30
+    #Eureka服务端收到最后一次心跳后等待时间上线，单位为秒（默认为90秒）
+    #在eureka server端关闭自我保护模式时，
+    #超时将剔除服务
+    lease-expiration-duration-in-seconds: 90
+

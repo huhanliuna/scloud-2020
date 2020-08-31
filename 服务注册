@@ -1,0 +1,17 @@
+服务注册：eureka consul zookeeper nacos
+
+组件名         语言          CAP     健康检查        对外暴露接口      Springcloud集成
+Eureka:        java         Ap      可配支持        http            已集成
+consul:        go           CP      支持            http/DNS        已集成
+zookeeper:     java         CP      支持            客户端           已集成
+nacos
+
+eureka:服务发现，自我保护机制（一句话： 某时刻某一个微服务不可用了，Eureka不会立即清理，依旧会对该微服务的信息进行保存）
+            默认出厂设置 自我保护机制是开启的，可以设置禁止：eureka.server.enbale-self-preservation=false
+consul:下载完成后只有一个consul.exe文件，硬盘路径下双击允许，查看版本号信息
+
+（基本集群中都实现类分区容错性）
+CAP：关注的是系统数据而不是策略，如点赞类的数据我们可接受极小范围不一致的情况可以忽略强一致性，提高高可用（AP）
+
+如Eureka的自我保护机制就体现了A ,好死不如赖活着
+consul/zookeeper 中注册的服务没收到心跳或者宕机赖，就立马剔除服务，但是Eureka会更有人情味点，继续保留服务

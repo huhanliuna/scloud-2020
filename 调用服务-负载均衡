@@ -1,0 +1,35 @@
+服务调用：ribbon loadBalance feign openFeign
+
+Ribbon：做负载均衡用的
+Ribbon/Nginx区别：Ribbon：本地负载均衡 ，在客户端用
+                 Nginx:服务端负载均衡 ，服务端 集中式
+
+Ribbon 负载均衡+Restemplate调用 并且Ribbon是被Reflix-Eureka兼容，所以导入了start-Reflix-Eureka包就不需要导入了Ribbon相关包
+
+Ribbon负载均衡有多种实现方式，默认是轮询模式，如果想单独使用ranDom随机轮询模式则需要注入RandomRule@Bean public IRule getIRule(){return new RandomRule();}
+    然后在SpringBoot启动类加注解：@RibbonClient(name = "cloud-payment-service",configuration = MyRule.class)
+
+    Ribbon 还可单独实现负载模式，可见lb包下
+
+
+Feign:是Springcloud一个轻量级的RestFull的 http服务客户端，Feign内置了Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务，
+Feign使用方式：使用Feign的注解定义接口，调用这个接口，就可以调用服务注册中心的服务
+dependency： starter-feign
+
+OPenFeign:是Springcloud 在feign的基础上支持SpringMVc的注解，如@RequestMapping注解下的接口，并通过动态代理的方式产生实现类，实现类中做负载均衡并调用其他服务。
+dependency： starter-openFeign
+
+
+OpenFeign超时控制：默认是1秒中，超时会报错，可通过配置文件设置超时时间：
+        #设置feign客户端超时时间（OpenFeign默认支持ribbon）
+        ribbon:
+          #指的是建立连接所用的时间，适用于网络状况正常的情况下，两端连接所用的实际
+          ReadTimeout: 5000
+          #指的是建立连接后从服务器读取到可用资源所用的时间
+          ConnectTimeout: 5000
+
+
+OPenFeign增强日志：
+
+
+

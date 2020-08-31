@@ -1,0 +1,4 @@
+/Users/lnmac/workspace/scloud2020/cloud-consumerfeign-order80/src/main/java/com/atln/springcloud/OrderFeignApplication.java
+/Users/lnmac/workspace/scloud2020/cloud-consumerfeign-order80/src/main/java/com/atln/springcloud/service/OrderService.java
+/Users/lnmac/workspace/scloud2020/cloud-consumerfeign-order80/src/main/java/com/atln/springcloud/controller/OrderController.java
+/Users/lnmac/workspace/scloud2020/cloud-consumerfeign-order80/src/main/java/com/atln/springcloud/config/FeignConfig.java

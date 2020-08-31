@@ -1,0 +1,4 @@
+/Users/lnmac/workspace/scloud2020/cloud-consumer-feign-hystrix-order80/src/main/java/com/atln/springcloud/service/PaymentFallbackService.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-feign-hystrix-order80/src/main/java/com/atln/springcloud/service/PaymentHystrixService.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-feign-hystrix-order80/src/main/java/com/atln/springcloud/controller/OrderHystrixController.java
+/Users/lnmac/workspace/scloud2020/cloud-consumer-feign-hystrix-order80/src/main/java/com/atln/springcloud/OrderHystrixApplication.java

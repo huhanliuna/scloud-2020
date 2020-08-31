@@ -1,0 +1,29 @@
+gateway:服务网关 类似于代理模式 可以作反向代理 和nginx作用类似
+
+gateway 基于webflux webflux基于netty
+webflux spring5中引入的心响应式框架，不需要依赖servlet，是属于异步非阻塞模式
+
+用法：也需要向eureka注入服务
+     导入gateway包  <dependency>
+                            <groupId>org.springframework.cloud</groupId>
+                            <artifactId>spring-cloud-starter-gateway</artifactId>
+                        </dependency>
+
+     配置yml文件 routs id url predicates
+     url路由方式有两种，一种配置文件 一种代码config中配置
+
+     predicates 断言，类似满足条件才可进入
+
+     Route（路由）：路由是网关的基本单元，由ID、URI、一组Predicate、一组Filter组成，根据Predicate进行匹配转发。
+     Predicate（谓语、断言）：路由转发的判断条件，目前SpringCloud Gateway支持多种方式，常见如：Path、Query、Method、Header等。
+     Filter（过滤器）：过滤器是路由转发请求时所经过的过滤逻辑，可用于修改请求、响应内容。
+ 学习资料
+ predicate篇：
+ https://www.cnblogs.com/snail90/p/11719573.html
+ filter篇：https://blog.csdn.net/forezp/article/details/85057268
+
+
+-------------------------------------------------
+扩充
+ netflix:eureka hystrix  zuul
+ cloud:ribbon  feign gateway config

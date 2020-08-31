@@ -1,0 +1,146 @@
+熔断器：hystrix sentinel
+
+Hystrix:是一个用于处理分布式系统的延迟和容错的开源库，在分布式系统里，许多依赖不可避免的会调用失败，比如超时异常等，
+Hystrix能保证在一个依赖出问题的情况下，不会导致整体服务失败，避免级联故障，提高分布式系统的弹性
+
+断路器本身是一种开关装置，当某个服务单元发生故障后，通过断路器故障监控（类似熔断保险丝），向调用方返回一个符合预期的，可处理的备选响应，
+而不是长时间等待，或者抛出调用方无法处理的异常，这样就保证了服务调用方的线程不会被长时间，不必要的占用的情况，从而避免了故障在分布式系统中蔓延乃至雪崩
+
+
+
+服务降级 服务熔断 服务限流
+
+哪些情况会突发降级：程序运行异常 超时 服务熔断触发服务降级 线程池/信号量打满也会导致服务降级
+
+服务熔断：类比保险丝达到最大服务访问后，直接拒绝访问，拉闸限电 然后调用服务降级的方法返回友好提示 就是保险丝
+
+服务限流：秒杀高并发等操作，严禁一窝蜂的过来拥挤，大家排队 一秒钟N个，有序进行
+
+hystrix可在服务端和消费端都可以配置使用，配置类似
+
+-----服务降级
+hystrix用法：主启动类上加@EnableHystrix ，
+需要降级的服务或者方法上加 @HystrixCommand(fallbackMethod = "paymentInfo_TimeoutFallbackMethod",commandProperties = {
+                                                  @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "2000")
+                                          })
+全局的和定制的降级：
+    全局：@DefaultProperties(defaultFallback = "paymentInfo_Global_FallbackMethod")
+    定制：@HystrixCommand(fallbackMethod = "paymentInfo_TimeoutFallbackMethod",commandProperties = {
+                   @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "2000")
+           })
+          在没有定制的情况下仅仅加了@HystrixCommand 默认找全局的降级服务
+
+服务熔断：先服务降级，再慢慢服务熔断
+
+熔断类型：开 半开 关
+
+  // ----服务熔断
+    @HystrixCommand(fallbackMethod = "paymentCircuitBreaker_fallback",commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.enabled", value = "true"),              //是否开启断路器
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),    //请求数达到后才计算
+            @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), //休眠时间窗
+            @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60"),  //错误率达到多少跳闸
+    })
+    public String paymentCircuitBreaker(@PathVariable("id") Integer id) {
+          if(id < 0){
+              throw  new RuntimeException("****id 不能为负数");
+          }
+          String serialNumber = IdUtil.simpleUUID();
+
+          return  Thread.currentThread().getName() + "\t" + "调用成功，流水号：" + serialNumber;
+    }
+
+    sleepWindowInMilliseconds：快照时间窗
+    requestVolumeThreshold：请求总数阀值 在快照时间内，必须满足请求总数阀值才有资格熔断，默认为20，意味着在10s内，如果该hystrix命令的调用次数不足20次，即使所有的请求超时或者其他原因失败，断路器都不会打开
+    errorThresholdPercentage：错误百分比阀值 当请求总数在快照时间内达到了阀值，比如发生了30次调用，如果在这30次调用中，有15次发生了超时异常，也就是超过50%的错误百分比，在默认设定50%阀值的情况下，这时候就会将断路器打开
+
+
+监控测试 豪猪哥 9001：
+hystrixDashboard
+
+#########################################################################################
+-----------------------------------------------------------------------------------------
+sentinel:
+        流控：
+        官网下载 sentinel-dashboard-1.7.2.jar  直接运行
+        需要被监控的服务上 加入sentinal相关依赖包，
+            被监控服务8401上配置文件：spring:
+                             application:
+                               name: cloudalibaba-sentinal-service
+                             cloud:
+                               nacos:
+                                 discovery:
+                                   enabled: true
+                                   server-addr: 39.100.249.228:8848
+                               sentinel:
+                                 transport:
+                                   port: 8719
+                                   dashboard: localhost:8080
+             8719是个什么鬼暂时也没搞明白
+
+        因为sentinel-dashboard是个懒加载模式，所以自己的服务连上了sentinal 在监控服务里也看到8401服务，需要访问8401上的某一个接口，才能看到
+
+        流控模式-阈值限流：
+         直接：默认，快速失败 单机阈值2 表示1s内查询2次就是ok,超过就快速失败，报默认错误
+         关联：当关联的资源达到阈值时，就限流自己。 当与A关联的资源B达到阈值后，就限流A自己。B惹事，A挂了
+         链路
+        流控效果：
+          直接 快速失败：默认的处理流程
+
+          预热：公式：阈值除以coldFactor(默认值为3)，经过预热时长后才会阈值。默认ColdFactor为3，即请求QPS从threashold/3开始，经预热时长逐渐升到设定的QPS阈值（预热时间内 请求数不超过阈值的1/3）
+
+          排队等待：匀速排队，严格控制请求通过的时间间隔 例如QPS=2时，每隔0。5s才允许通过下一个请求
+
+
+        降级：
+            RT：请求次数大于5
+            异常比例：请求次数大于5
+            异常数：按分钟统计，时间窗口》=60s
+
+
+
+            热点key:可以设置指定参数访问请求数量
+                @SentinelResource  @SentinelResource(value = "testHotKey",blockHandler = "deal_testHotKey")
+                普通
+                全局
+
+
+            SentinelResource讲解： blockHandler处理 dashboard监控平台上的问题
+                              fallback处理代码发生的运行时异常
+
+                @SentinelResource(value = "customerBlockHandler",
+                            blockHandlerClass = CustomerBlockHandler.class,blockHandler = "handlerException2")
+                    @SentinelResource(value = "fallback",fallback ="handlerFallback",blockHandler = "blockHandler")
+
+
+        熔断：fallback
+
+        ExceptionsToIgnore
+
+        sentinal 支持openFeign: 工程：order84 其他用法同openfeign一样 接口 注解调用 fallback 熔断
+
+                             yml中添加配置：
+                                #激活Sentieign的支持
+                                feign:
+                                  sentinel:
+                                    enabled: true
+
+
+
+        持久化：
+                一旦我们重启应用，sentinel规则将消失，生产环境需要将配置规则进行持久化， 所以我们会将配置持久化到nacos
+
+                添加配置：      datasource:
+                                 ds1:
+                                   nacos:
+                                     server-addr: 39.100.249.228:8848
+                                     dataId: cloudalibaba-sentinel-service
+                                     groupId: DEFAULT_GROUP
+                                     data-type: json
+                                     rule-type: flow
+
+                添加maven依赖：<!-- SpringCloud ailibaba sentinel-datasource-nacos  持久化需要用到 --> 
+                <dependency>    
+                   <groupId> com.alibaba.csp </groupId>  
+                   <artifactId> sentinel-datasource-nacos </artifactId> 
+                </dependency>
